@@ -14,7 +14,7 @@ from setuptools import setup
 # Add here console scripts and other entry points in ini-style format
 entry_points = """
 [console_scripts]
-# script_name = multi_channel_bpr.module:function
+multi_channel_bpr = multi_channel_bpr.run:main
 # For example:
 # fibonacci = multi_channel_bpr.skeleton:run
 """
