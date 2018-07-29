@@ -1,15 +1,19 @@
 """
 Evaluation module
 """
+import logging
 
 import numpy as np
 import pandas as pd
 
-import logging
+__author__ = "Marcel Kurovski"
+__copyright__ = "Marcel Kurovski"
+__license__ = "mit"
+
 _logger = logging.getLogger(__name__)
 
 
-def score_one_plus_random(k, user_reps, item_reps, test_inter, n_random=1000,
+def score_one_plus_random(k, test_inter, user_reps, item_reps, n_random=1000,
                           verbose=True):
     """
     Computes mean average precision, mean average recall and
@@ -61,7 +65,7 @@ def score_one_plus_random(k, user_reps, item_reps, test_inter, n_random=1000,
             rr_agg += 1 / (idx[0] + 1)
 
         if not (i % (m // 10)) & verbose:
-            _logger.info("Evaluating %i/%i", i, m)
+            _logger.info("Evaluating %s/%s", str(i), str(m))
 
     prec = n_hits / (m*k)
     rec = n_hits / m

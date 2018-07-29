@@ -1,13 +1,16 @@
 """
 Helper functions
 """
-
+import logging
 import os
 
 import numpy as np
 import pandas as pd
 
-import logging
+__author__ = "Marcel Kurovski"
+__copyright__ = "Marcel Kurovski"
+__license__ = "mit"
+
 _logger = logging.getLogger(__name__)
 
 

@@ -3,13 +3,17 @@ Model initialization and training methods
 """
 
 from collections import OrderedDict
+import logging
 
 from .evaluation import score_one_plus_random
 from .sampling import (get_pos_channel, get_neg_channel,
-                        get_pos_user_item, get_neg_item)
+                       get_pos_user_item, get_neg_item)
 from .utils import *
 
-import logging
+__author__ = "Marcel Kurovski"
+__copyright__ = "Marcel Kurovski"
+__license__ = "mit"
+
 _logger = logging.getLogger(__name__)
 
 
@@ -21,7 +25,8 @@ class MultiChannelBPR:
         """
         Args:
             d (int): no. of embedding dimensions
-            beta (float): share of unobserved within overall negative feedback
+            beta (float): share of unobserved feedback in the overall
+                          negative feedback we are sampling from
             rd_seed (int): random generator seed
             channels ([int]): rating values for distinct feedback channels
             n_user (int): no. of users in the dataset
@@ -36,25 +41,23 @@ class MultiChannelBPR:
         self.n_item = n_item
         self.n_random = n_random
 
-    def set_train_data(self, train_ratings, beta):
+    def set_train_data(self, train_ratings):
         """
         Attaches the training data to the model
 
         Args:
             train_ratings (pd.DataFrame): training instances [user, item, rating]
-            beta (float): share of unobserved feedback in the overall
-                          negative feedback we are sampling from
         """
         self.train_inter_pos, self. train_inter_neg = \
             get_pos_neg_splits(train_ratings)
         self.pos_level_dist, self.neg_level_dist = \
             get_overall_level_distributions(self.train_inter_pos,
-                                            self.train_inter_neg, beta)
+                                            self.train_inter_neg, self.beta)
 
         self.train_inter_pos_dict = get_pos_channel_item_dict(self.train_inter_pos)
 
         self.user_reps = get_user_reps(self.n_user, self.d, train_ratings,
-                                       self.channels, beta)
+                                       self.channels, self.beta)
         self.item_reps = get_item_reps(self.n_item, self.d)
 
     def fit(self, lr, reg_params, n_epochs, neg_item_sampling_mode, verbose=False):
@@ -69,8 +72,8 @@ class MultiChannelBPR:
             verbose (bool): verbosity
         """
         n_examples = self.train_inter_pos.shape[0]
-        # show result at every ~1% of the whole training data
-        show_step = n_examples//100
+        # show result at every ~10% of the whole training data
+        show_step = n_examples//10
         for epoch in range(n_epochs):
             for instance in range(n_examples):
                 L = get_pos_channel(self.pos_level_dist)
@@ -119,6 +122,7 @@ class MultiChannelBPR:
         Args:
             test_ratings (pd.DataFrame): test instances [user, item, rating]
             k (int): no. of best items to take
+            verbose (bool): verbosity
 
         Returns:
             result (tuple): (MAP, MAR, MRR)

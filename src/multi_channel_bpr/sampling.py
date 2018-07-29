@@ -1,10 +1,14 @@
 """
 Module with channel and item sampling functions
 """
+import logging
 
 import numpy as np
 
-import logging
+__author__ = "Marcel Kurovski"
+__copyright__ = "Marcel Kurovski"
+__license__ = "mit"
+
 _logger = logging.getLogger(__name__)
 
 
