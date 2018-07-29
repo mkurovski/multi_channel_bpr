@@ -11,6 +11,8 @@ __license__ = "mit"
 
 _logger = logging.getLogger(__name__)
 
+from multi_channel_bpr import __version__
+
 
 def parse_args(args):
     """Parse command line parameters
@@ -39,7 +41,7 @@ def parse_args(args):
         nargs='+',
         dest="beta_list",
         help="share of unobserved within negative feedback",
-        type=int,
+        type=float,
         default=[1.],
         metavar="FLOAT")
     parser.add_argument(
@@ -61,8 +63,8 @@ def parse_args(args):
         '-k',
         dest="k",
         help="no. of items with highest predicted rating",
-        type=float,
-        metavar="FLOAT",
+        type=int,
+        metavar="INT",
         required=True)
     parser.add_argument(
         '-seed',

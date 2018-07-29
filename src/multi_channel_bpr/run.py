@@ -17,7 +17,6 @@ from .cli import parse_args
 from .model import MultiChannelBPR
 from .utils import load_movielens, get_channels
 
-from multi_channel_bpr import __version__
 
 __author__ = "Marcel Kurovski"
 __copyright__ = "Marcel Kurovski"
@@ -74,9 +73,10 @@ def main(args):
                         split_count, args.n_folds, neg_sampling_mode, beta
                 ))
 
-                model = MultiChannelBPR(d=args.d, beta=args.beta, rd_seed=args.rd_seed,
+                model = MultiChannelBPR(d=args.d, beta=beta,
+                                        rd_seed=args.rd_seed,
                                         channels=channels, n_user=m, n_item=n)
-                model.set_train_data(train_inter, beta=args.beta)
+                model.set_train_data(train_inter)
                 _logger.info("Training ...")
                 model.fit(lr=args.lr, reg_params=reg_params, n_epochs=args.n_epochs,
                           neg_item_sampling_mode=neg_sampling_mode,
