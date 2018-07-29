@@ -4,4 +4,7 @@
 # Example:
 # numpy==1.13.3
 # scipy==1.0
+pandas
+numpy
+scikit-learn
 
