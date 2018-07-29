@@ -15,8 +15,6 @@ from setuptools import setup
 entry_points = """
 [console_scripts]
 multi_channel_bpr = multi_channel_bpr.run:run
-# For example:
-# fibonacci = multi_channel_bpr.skeleton:run
 """
 
 
