@@ -19,7 +19,7 @@ _logger = logging.getLogger(__name__)
 
 class MultiChannelBPR:
     """
-
+    Model Class for Multi-Channel Bayesian Personalized Ranking
     """
     def __init__(self, d, beta, rd_seed, channels, n_user, n_item, n_random=1000):
         """
@@ -62,6 +62,11 @@ class MultiChannelBPR:
 
     def fit(self, lr, reg_params, n_epochs, neg_item_sampling_mode, verbose=False):
         """
+        Fits the model (user and item latent features)
+        to the training data using the sampling
+        approaches described in the respective paper by Loni et al.
+        combined with the BPR as the pairwise larning-to-rank approach
+        by Rendle
 
         Args:
             lr (float): learning rate
@@ -97,6 +102,7 @@ class MultiChannelBPR:
 
     def predict(self, users, k):
         """
+        Returns the `k` most-relevant items for every user in `users
 
         Args:
             users ([int]): list of user IDs
@@ -118,11 +124,13 @@ class MultiChannelBPR:
 
     def evaluate(self, test_ratings, k):
         """
+        Offline evaluation of the model performance using precision,
+        recall, and mean reciprocal rank computed for top-`k` positions
+        and averaged across all users
 
         Args:
             test_ratings (pd.DataFrame): test instances [user, item, rating]
-            k (int): no. of best items to take
-            verbose (bool): verbosity
+            k (int): no. of best positions to evaluate
 
         Returns:
             result (tuple): (MAP, MAR, MRR)
@@ -137,7 +145,18 @@ class MultiChannelBPR:
 
 
 def get_pos_neg_splits(train_inter_df):
+    """
+    Calculates the rating mean for each user and splits the train
+    ratings into positive (greater or equal as every user's
+    mean rating) and negative ratings (smaller)
 
+    Args:
+        train_inter_df (pd.DataFrame):
+
+    Returns:
+        train_inter_pos (pd.DataFrame):
+        train_inter_neg (pd.DataFrame):
+    """
     user_mean_ratings = \
         train_inter_df[['user', 'rating']].groupby('user').mean().reset_index()
     user_mean_ratings.rename(columns={'rating': 'mean_rating'},
@@ -153,6 +172,18 @@ def get_pos_neg_splits(train_inter_df):
 
 
 def get_overall_level_distributions(train_inter_pos, train_inter_neg, beta):
+    """
+    Computes the frequency distributions for discrete ratings
+
+    Args:
+        train_inter_pos (pd.DataFrame):
+        train_inter_neg (pd.DataFrame):
+        beta (float):
+
+    Returns:
+        pos_level_dist (dict): positive level sampling distribution
+        neg_level_dist (dict): negative level sampling distribution
+    """
 
     pos_counts = train_inter_pos['rating'].value_counts().sort_index(
             ascending=False)
@@ -168,6 +199,17 @@ def get_overall_level_distributions(train_inter_pos, train_inter_neg, beta):
 
 
 def get_pos_channel_item_dict(train_inter_pos):
+    """
+    Creates buckets for each possible rating in `train_inter_pos`
+    and subsumes all observed (user, item) interactions with
+    the respective rating within
+
+    Args:
+        train_inter_pos (pd.DataFrame):
+
+    Returns:
+        train_inter_pos_dict (dict):
+    """
 
     pos_counts = train_inter_pos['rating'].value_counts().sort_index(
         ascending=False)
@@ -183,7 +225,19 @@ def get_pos_channel_item_dict(train_inter_pos):
 
 def get_user_reps(m, d, train_inter, channels, beta):
     """
+    Creates user representations that encompass user latent features
+    and additional user-specific information
+    User latent features are drawn from a standard normal distribution
 
+    Args:
+        m (int): no. of unique users in the dataset
+        d (int):
+        train_inter (pd.DataFrame):
+        channels ([int]):
+        beta (float):
+
+    Returns:
+        user_reps (dict)
     """
     user_reps = {}
     train_inter = train_inter.sort_values('user')
@@ -226,7 +280,14 @@ def get_user_reps(m, d, train_inter, channels, beta):
 
 def get_item_reps(n, d):
     """
+    Initializes item latent features from a standard normal distribution
 
+    Args:
+        n (int): no. of unique items
+        d (int): no. of latent features
+
+    Returns:
+        item_reps (np.array): (n, d) array with latent items features
     """
     item_reps = np.random.normal(size=(n, d))
 
@@ -274,7 +335,6 @@ def perform_gradient_descent(user_embed, pos_item_embed, neg_item_embed, lr, reg
     neg_item_theta = rms(neg_item_embed)
 
     # 6. Step
-    # TODO: Put into separate method that also adds the terms to the embeddings
     user_update = lr * (constant_term * user_derivative + lambda_u * user_theta)
     pos_item_update = lr * (constant_term * pos_item_derivative + lambda_i * pos_item_theta)
     neg_item_update = lr * (constant_term * neg_item_derivative + lambda_j * neg_item_theta)

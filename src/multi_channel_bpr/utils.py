@@ -16,17 +16,18 @@ _logger = logging.getLogger(__name__)
 
 def get_pos_level_dist(weights, level_counts, mode='non-uniform'):
     """
-    Returns the sampling distribution for the
-    different feedback channels L
-    weights refer to levels
+    Returns the sampling distribution for positive
+    feedback channels L using either a `non-uniform`or `uniform` approach
 
     Args:
-        weights (np.array):
-        level_counts (np.array):
-        mode (str):
+        weights (np.array): preference quantifications (possible ratings)
+        level_counts (np.array): occurrence count for each ratings
+        mode (str): either 'uniform' meaning all positive levels are
+                    equally relevant or 'non-uniform' which imposes
+                    a (weight*count)-weighted distribution of positive levels
 
     Returns:
-        dist (dict): (weight, probability)-pairs
+        dist (dict): (channel, probability)-pairs for distribution
     """
     if mode == 'non-uniform':
         nominators = weights * level_counts
@@ -43,7 +44,15 @@ def get_pos_level_dist(weights, level_counts, mode='non-uniform'):
 
 def get_neg_level_dist(weights, level_counts, mode='non-uniform'):
     """
+    Compute negative feedback channel distribution
 
+    Args:
+        weights:
+        level_counts:
+        mode:
+
+    Returns:
+        dist (dict): (channel, probability)-pairs
     """
     if mode == 'non-uniform':
         nominators = [weight * count for weight, count in zip(weights, level_counts)]
@@ -84,7 +93,7 @@ def load_movielens(path):
     loads the movielens 1M dataset, solely interactions
 
     Args:
-        path (str): path pointing to folder with interaction data `ratings.dat
+        path (str): path pointing to folder with interaction data `ratings.dat`
 
     Returns:
         ratings (pd.DataFrame): interactions (user, item, rating)

@@ -1,7 +1,6 @@
 """
 Module with command line interface arguments for Argparser
 """
-
 import argparse
 import logging
 
@@ -91,7 +90,7 @@ def parse_args(args):
         '-sampling',
         nargs='+',
         dest="neg_sampling_modes",
-        help="negative item sampling mode",
+        help="list of negative item sampling modes",
         type=str,
         default=['uniform', 'non-uniform'],
         metavar="STR")

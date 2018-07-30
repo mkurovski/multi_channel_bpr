@@ -48,16 +48,15 @@ def score_one_plus_random(k, test_inter, user_reps, item_reps, n_random=1000,
         i = test_inter_red[i, 1]
         user_embed = user_reps[u]['embed']
         user_items = user_reps[u]['items']
-        # 1. Randomly select 1000 additional items unrated by the user u
-        # Assume that most of them will not be of interest to user u
+        # 1. Randomly select `n_random` items with unobserved ratings in the train data
         random_uo_items = np.random.choice(np.setdiff1d(np.arange(n_item), user_items),
                                            replace=False, size=n_random)
         user_items = np.array(list(random_uo_items) + [i])
         user_item_reps = item_reps[user_items]
-        # 2. predict the ratings for the test item i and for the additional 1000 items
+        # 2. Predict ratings for test item i and for unobserved items
         user_item_scores = np.dot(user_item_reps, user_embed)
         user_items = user_items[np.argsort(user_item_scores)[::-1][:k]]
-        # 3. Get rank p of the test item i within this list
+        # 3. Get rank p of test item i within rating predictions
         idx = np.where(i == user_items)[0]
         if len(idx) != 0:
             # item i is among Top-N predictions
