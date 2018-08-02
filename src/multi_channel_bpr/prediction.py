@@ -14,16 +14,16 @@ _logger = logging.getLogger(__name__)
 
 def get_top_k_recs(user_reps, item_reps, k):
     """
-    For each user compute the top-n item recommendations
+    For each user compute the `n` topmost-relevant items
 
     Args:
-        user_reps (dict): user representations
-        item_reps (np.array): item latent features
-        k (int): no. of best items to take
+        user_reps (dict): representations for all `m` unique users
+        item_reps (:obj:`np.array`): (n, d) `d` latent features for all `n` items
+        k (int): no. of most relevant items
 
     Returns:
         item_recs ([[int]]): list of personalized recommendations for each user
-                             resembling lists of item IDs
+            as lists of item IDs
     """
     n_user = len(user_reps)
     item_recs = []

@@ -3,6 +3,7 @@ Helper functions
 """
 import logging
 import os
+import pdb
 
 import numpy as np
 import pandas as pd
@@ -17,17 +18,19 @@ _logger = logging.getLogger(__name__)
 def get_pos_level_dist(weights, level_counts, mode='non-uniform'):
     """
     Returns the sampling distribution for positive
-    feedback channels L using either a `non-uniform`or `uniform` approach
+    feedback channels L using either a `non-uniform` or `uniform` approach
 
     Args:
-        weights (np.array): preference quantifications (possible ratings)
-        level_counts (np.array): occurrence count for each ratings
-        mode (str): either 'uniform' meaning all positive levels are
-                    equally relevant or 'non-uniform' which imposes
-                    a (weight*count)-weighted distribution of positive levels
+        weights (:obj:`np.array`): (w, ) `w` rating values representing distinct
+            positive feedback channels
+        level_counts (:obj:`np.array`): (s, ) count `s` of ratings for each
+            positive feedback channel
+        mode (str): either `uniform` meaning all positive levels are
+            equally relevant or `non-uniform` which imposes
+            a (rating*count)-weighted distribution of positive levels
 
     Returns:
-        dist (dict): (channel, probability)-pairs for distribution
+        dist (dict): positive channel sampling distribution
     """
     if mode == 'non-uniform':
         nominators = weights * level_counts
@@ -47,12 +50,16 @@ def get_neg_level_dist(weights, level_counts, mode='non-uniform'):
     Compute negative feedback channel distribution
 
     Args:
-        weights:
-        level_counts:
-        mode:
+        weights (:obj:`np.array`): (w, ) `w` rating values representing distinct
+            negative feedback channels
+        level_counts (:obj:`np.array`): (s, ) count `s` of ratings for each
+            negative feedback channel
+        mode: either `uniform` meaning all negative levels are
+            equally relevant or `non-uniform` which imposes
+            a (rating*count)-weighted distribution of negative levels
 
     Returns:
-        dist (dict): (channel, probability)-pairs
+        dist (dict): negative channel sampling distribution
     """
     if mode == 'non-uniform':
         nominators = [weight * count for weight, count in zip(weights, level_counts)]
@@ -64,6 +71,9 @@ def get_neg_level_dist(weights, level_counts, mode='non-uniform'):
     else:
         n_levels = len(weights)
         dist = [1 / n_levels] * n_levels
+
+    if np.abs(np.sum(dist)-1) > 0.00001:
+        _logger.warning("Dist sum unequal 1.")
 
     dist = dict(zip(list(weights), dist))
 
@@ -90,17 +100,17 @@ def sigmoid(x):
 
 def load_movielens(path):
     """
-    loads the movielens 1M dataset, solely interactions
+    loads the movielens 1M dataset, ignoring temporal information
 
     Args:
         path (str): path pointing to folder with interaction data `ratings.dat`
 
     Returns:
-        ratings (pd.DataFrame): interactions (user, item, rating)
-        m (int): no. of users
-        n (int): no. of items
+        ratings (:obj:`pd.DataFrame`): overall interaction instances (rows)
+            with three columns `[user, item, rating]`
+        m (int): no. of unique users in the dataset
+        n (int): no. of unique items in the dataset
     """
-
     ratings = pd.read_csv(os.path.join(path, 'ratings.dat'), sep='::', header=0,
                           names=['user', 'item', 'rating', 'timestamp'])
     ratings.drop('timestamp', axis=1, inplace=True)
@@ -108,6 +118,7 @@ def load_movielens(path):
     m = ratings['user'].unique().shape[0]
     n = ratings['item'].unique().shape[0]
 
+    # Contiguation of user and item IDs
     user_rehasher = dict(zip(ratings['user'].unique(), np.arange(m)))
     item_rehasher = dict(zip(ratings['item'].unique(), np.arange(n)))
     ratings['user'] = ratings['user'].map(user_rehasher).astype(int)
@@ -118,13 +129,13 @@ def load_movielens(path):
 
 def get_channels(inter_df):
     """
-    Return existing feedback channels ordered
-    by descending preference level
+    Return existing feedback channels ordered by descending preference level
 
     Args:
-        inter_df (pd.DataFrame):
+        inter_df (:obj:`pd.DataFrame`): overall interaction instances (rows)
+            with three columns `[user, item, rating]`
     Returns:
-        channels (float):
+        channels ([int]): rating values representing distinct feedback channels
     """
     channels = list(inter_df['rating'].unique())
     channels.sort()

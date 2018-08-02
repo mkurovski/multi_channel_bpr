@@ -4,7 +4,6 @@ Evaluation module
 import logging
 
 import numpy as np
-import pandas as pd
 
 __author__ = "Marcel Kurovski"
 __copyright__ = "Marcel Kurovski"
@@ -23,11 +22,11 @@ def score_one_plus_random(k, test_inter, user_reps, item_reps, n_random=1000,
     by Cremonesi, Paolo, Yehuda Koren, and Roberto Turrin (2010)
 
     Args:
-        k (int): no. of ranked prediction positions to consider
-        user_reps (dict): user representations
-        item_reps (np.array): item latent features
-        test_inter (pd.DataFrame): DataFrame with [user, item, rating] entries
-        n_random (int): no. of random unobserved items to sample
+        k (int): no. of most relevant items
+        user_reps (dict): representations for all `m` unique users
+        item_reps (:obj:`np.array`): (n, d) `d` latent features for all `n` items
+        test_inter (:obj:`pd.DataFrame): DataFrame with [user, item, rating] entries
+        n_random (int): no. of unobserved items to sample randomly
         verbose (bool): verbosity
 
     Returns:
@@ -43,9 +42,9 @@ def score_one_plus_random(k, test_inter, user_reps, item_reps, n_random=1000,
     m = test_inter_red.shape[0]
     n_item = item_reps.shape[0]
 
-    for i in range(m):
-        u = test_inter_red[i, 0]
-        i = test_inter_red[i, 1]
+    for idx in range(m):
+        u = test_inter_red[idx, 0]
+        i = test_inter_red[idx, 1]
         user_embed = user_reps[u]['embed']
         user_items = user_reps[u]['items']
         # 1. Randomly select `n_random` items with unobserved ratings in the train data
@@ -57,14 +56,14 @@ def score_one_plus_random(k, test_inter, user_reps, item_reps, n_random=1000,
         user_item_scores = np.dot(user_item_reps, user_embed)
         user_items = user_items[np.argsort(user_item_scores)[::-1][:k]]
         # 3. Get rank p of test item i within rating predictions
-        idx = np.where(i == user_items)[0]
-        if len(idx) != 0:
+        i_idx = np.where(i == user_items)[0]
+        if len(i_idx) != 0:
             # item i is among Top-N predictions
             n_hits += 1
-            rr_agg += 1 / (idx[0] + 1)
+            rr_agg += 1 / (i_idx[0] + 1)
 
-        if not (i % (m // 10)) & verbose:
-            _logger.info("Evaluating %s/%s", str(i), str(m))
+        if verbose and (idx % (m//10) == 0):
+            _logger.info("Evaluating %s/%s", str(idx), str(m))
 
     prec = n_hits / (m*k)
     rec = n_hits / m
