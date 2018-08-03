@@ -80,7 +80,6 @@ class MultiChannelBPR:
         """
         n_examples = self.train_inter_pos.shape[0]
         # show result at every ~10% of the whole training data
-        # TODO: Check verbosity differentiation in scikit-learn for training
         show_step = n_examples//10
         for epoch in range(n_epochs):
             for instance in range(n_examples):
