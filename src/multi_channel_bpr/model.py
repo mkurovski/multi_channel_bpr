@@ -87,8 +87,8 @@ class MultiChannelBPR:
                 u, i = get_pos_user_item(L, self.train_inter_pos_dict)
                 N = get_neg_channel(self.user_reps[u])
                 j = get_neg_item(self.user_reps[u], N, self.n_item, u, i,
-                                 self.train_inter_pos_dict,
                                  self.pos_level_dist,
+                                 self.train_inter_pos_dict,
                                  mode=neg_item_sampling_mode)
                 user_embed, pos_item_embed, neg_item_embed = \
                     perform_gradient_descent(self.user_reps[u]['embed'],

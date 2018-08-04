@@ -105,17 +105,21 @@ def get_neg_item(user_rep, N, n, u, i, pos_level_dist, train_inter_pos_dict,
         elif mode == 'non-uniform':
             # sample item non-uniformly from unobserved channel
             L = get_pos_channel(pos_level_dist)
+            pos_channel_interactions = train_inter_pos_dict[L]
+            n_pos_interactions = len(pos_channel_interactions)
             pick_trials = 0  # ensure sampling despite
             u_other, i_other = u, i
-            while u == u_else or i == i_else:
-                L = get_pos_channel(pos_level_dist)
+            while u == u_other or i == i_other:
                 pos_channel_interactions = train_inter_pos_dict[L]
-                u_other, i_other = np.random.choice(pos_channel_interactions)
+                pick_idx = np.random.randint(n_pos_interactions)
+                u_other, i_other = pos_channel_interactions[pick_idx]
                 pick_trials += 1
                 if pick_trials == 10:
                     # Ensures that while-loop terminates if sampled L does
                     # not provide properly different feedback
                     L = get_pos_channel(pos_level_dist)
+                    pos_channel_interactions = train_inter_pos_dict[L]
+                    n_pos_interactions = len(pos_channel_interactions)
 
             j = i_other
 
