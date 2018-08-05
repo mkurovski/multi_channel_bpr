@@ -100,7 +100,8 @@ class MultiChannelBPR:
                 self.item_reps[j] = neg_item_embed
                 if verbose:
                     if not instance % show_step:
-                        self.print_learning_status(instance, n_examples)
+                        self.print_learning_status(epoch, n_epochs,
+                                                   instance, n_examples)
 
     def predict(self, users, k):
         """
@@ -144,8 +145,9 @@ class MultiChannelBPR:
 
         return result
 
-    def print_learning_status(self, instance, n_examples):
-        _logger.info("Step: %s/%s", str(instance), str(n_examples))
+    def print_learning_status(self, epoch, n_epochs, instance, n_examples):
+        _logger.info("Epoch %s/%s, Step: %s/%s", str(epoch), str(n_epochs),
+                     str(instance), str(n_examples))
 
 
 def get_pos_neg_splits(train_inter_df):
