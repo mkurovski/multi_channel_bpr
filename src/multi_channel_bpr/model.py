@@ -41,12 +41,14 @@ class MultiChannelBPR:
         self.n_item = n_item
         self.n_random = n_random
 
-    def set_train_data(self, train_ratings):
+    def set_data(self, train_ratings, test_ratings):
         """
-        Attaches the training data to the model
+        Attaches the data to the model
 
         Args:
             train_ratings (:obj:`pd.DataFrame`): `M` training instances (rows)
+                with three columns `[user, item, rating]`
+            test_ratings (:obj:`pd.DataFrame`): `M` testing instances (rows)
                 with three columns `[user, item, rating]`
         """
         self.train_inter_pos, self. train_inter_neg = \
@@ -57,7 +59,8 @@ class MultiChannelBPR:
 
         self.train_inter_pos_dict = get_pos_channel_item_dict(self.train_inter_pos)
 
-        self.user_reps = get_user_reps(self.n_user, self.d, train_ratings,
+        self.user_reps = get_user_reps(self.n_user, self.d,
+                                       train_ratings, test_ratings,
                                        self.channels, self.beta)
         self.item_reps = get_item_reps(self.n_item, self.d)
 
@@ -79,7 +82,7 @@ class MultiChannelBPR:
             verbose (bool): verbosity
         """
         n_examples = self.train_inter_pos.shape[0]
-        # show result at every ~10% of the whole training data
+        # show result after every ~10% of the whole training data
         show_step = n_examples//10
         for epoch in range(n_epochs):
             for instance in range(n_examples):
@@ -237,7 +240,7 @@ def get_pos_channel_item_dict(train_inter_pos):
     return train_inter_pos_dict
 
 
-def get_user_reps(m, d, train_inter, channels, beta):
+def get_user_reps(m, d, train_inter, test_inter, channels, beta):
     """
     Creates user representations that encompass user latent features
     and additional user-specific information
@@ -248,6 +251,8 @@ def get_user_reps(m, d, train_inter, channels, beta):
         d (int): no. of latent features for user and item representations
         train_inter (:obj:`pd.DataFrame`): `M` training instances (rows)
             with three columns `[user, item, rating]`
+        test_ratings (:obj:`pd.DataFrame`): `M` testing instances (rows)
+                with three columns `[user, item, rating]`
         channels ([int]): rating values representing distinct feedback channels
         beta (float): share of unobserved feedback within the overall
             negative feedback
@@ -264,6 +269,8 @@ def get_user_reps(m, d, train_inter, channels, beta):
         user_item_ratings = train_inter[train_inter['user'] == user_id][['item', 'rating']]
         user_reps[user_id]['mean_rating'] = user_item_ratings['rating'].mean()
         user_reps[user_id]['items'] = list(user_item_ratings['item'])
+        user_reps[user_id]['all_items'] = list(set(user_reps[user_id]['items']).union(
+                                               set(list(test_inter[test_inter['user'] == user_id]['item']))))
         user_reps[user_id]['pos_channel_items'] = OrderedDict()
         user_reps[user_id]['neg_channel_items'] = OrderedDict()
         for channel in channels:

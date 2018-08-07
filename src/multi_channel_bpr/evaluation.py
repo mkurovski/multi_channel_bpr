@@ -23,9 +23,10 @@ def score_one_plus_random(k, test_inter, user_reps, item_reps, n_random=1000,
 
     Args:
         k (int): no. of most relevant items
+        test_inter (:obj:`pd.DataFrame`): `M` testing instances (rows)
+            with three columns `[user, item, rating]`
         user_reps (dict): representations for all `m` unique users
         item_reps (:obj:`np.array`): (n, d) `d` latent features for all `n` items
-        test_inter (:obj:`pd.DataFrame): DataFrame with [user, item, rating] entries
         n_random (int): no. of unobserved items to sample randomly
         verbose (bool): verbosity
 
@@ -46,8 +47,8 @@ def score_one_plus_random(k, test_inter, user_reps, item_reps, n_random=1000,
         u = test_inter_red[idx, 0]
         i = test_inter_red[idx, 1]
         user_embed = user_reps[u]['embed']
-        user_items = user_reps[u]['items']
-        # 1. Randomly select `n_random` items with unobserved ratings in the train data
+        user_items = user_reps[u]['all_items']
+        # 1. Randomly select `n_random` unobserved items
         random_uo_items = np.random.choice(np.setdiff1d(np.arange(n_item), user_items),
                                            replace=False, size=n_random)
         user_items = np.array(list(random_uo_items) + [i])

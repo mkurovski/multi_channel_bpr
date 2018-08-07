@@ -76,7 +76,7 @@ def main(args):
                 model = MultiChannelBPR(d=args.d, beta=beta,
                                         rd_seed=args.rd_seed,
                                         channels=channels, n_user=m, n_item=n)
-                model.set_train_data(train_inter)
+                model.set_data(train_inter, test_inter)
                 _logger.info("Training ...")
                 model.fit(lr=args.lr, reg_params=reg_params, n_epochs=args.n_epochs,
                           neg_item_sampling_mode=neg_sampling_mode,
