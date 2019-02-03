@@ -149,8 +149,8 @@ class MultiChannelBPR:
         return result
 
     def print_learning_status(self, epoch, n_epochs, instance, n_examples):
-        _logger.info("Epoch %s/%s, Step: %s/%s", str(epoch), str(n_epochs),
-                     str(instance), str(n_examples))
+        _logger.info("Epoch %d/%d, Step: %7d/%7d", epoch, n_epochs, instance,
+                                                   n_examples)
 
 
 def get_pos_neg_splits(train_inter_df):
