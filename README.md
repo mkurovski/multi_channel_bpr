@@ -9,10 +9,11 @@ This paper builds upon the famous paper by Rendle on Bayesian Personalized Ranki
 
 ### Usage
 1. Clone the repository
-2. Change to the cloned folder `cd multi_channel_bpr`
-3. Make sure you have `pandas`, `numpy` and `scikit-learn` installed in your environment
-4. Install the package with `python setup.py install`
-5. Call the package with the command `multi_channel_bpr` followed by the respective parameters:
+2. Obtain the MovieLens 1M Dataset from [grouplens](https://grouplens.org/datasets/movielens/1m/) and unzip it
+3. Change to the cloned folder `cd multi_channel_bpr`
+4. Make sure you have `pandas`, `numpy` and `scikit-learn` installed in your environment
+5. Install the package with `python setup.py install`
+6. Call the package with the command `multi_channel_bpr` followed by the respective parameters:
 	* `-d` (int): no. of latent features for user and item representations
 	* `-beta` [(float)]: share of unobserved feedback within the overall negative feedback
 	* `-lr` (float): learning rate for stochastic gradient descent
@@ -26,9 +27,8 @@ This paper builds upon the famous paper by Rendle on Bayesian Personalized Ranki
 	* `-results` (str): path to write results into
 
 ### Results
-`multi_channel_bpr -v -d 50 -beta 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 -k 10 -epochs 100 -v -sampling 'uniform' 'non-uniform' -seed 42` (currently runs)
 
-- [ ] tbd
+- [ ] run `multi_channel_bpr -v -d 50 -beta 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 -k 10 -epochs 100 -v -sampling 'uniform' 'non-uniform' -seed 42` and report results
 
 ### Related Papers with implemented ideas
 - [Loni, Babak, et al. **"Bayesian personalized ranking with multi-channel user feedback."** Proceedings of the 10th ACM Conference on Recommender Systems. ACM, 2016.](https://dl.acm.org/citation.cfm?id=2959163)
@@ -48,5 +48,3 @@ This paper builds upon the famous paper by Rendle on Bayesian Personalized Ranki
 ## Note
 This project has been set up using PyScaffold 3.0.3. For details and usage
 information on PyScaffold see [http://pyscaffold.org/](http://pyscaffold.org/).
-
-
